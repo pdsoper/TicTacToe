@@ -1,0 +1,43 @@
+/* styles.css for TicTacToe */
+
+.board {
+	height: 640px;
+	width: 640px;
+	background-color: #000080;
+	margin: auto;
+	font-family: Helvetica, Arial, sans-serif;
+}
+
+table {
+	width: 600px;
+	position: relative;
+	top: 20px;
+	left: 20px;
+	empty-cells: show;
+	border-collapse: collapse;
+	text-align: center;
+	font-size: 6em;
+	color: #dddddd;
+}
+
+tr {
+	height: 200px;
+}
+
+td {
+	width: 200px;
+	vertical-align: center;
+}
+
+.center-col {
+	border-left: 3px solid yellow;
+	border-right: 3px solid yellow;
+}
+
+.center-row {
+	border-top: 3px solid yellow;
+	border-bottom: 3px solid yellow;
+}
+
+
+
