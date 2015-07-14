@@ -13,28 +13,50 @@
 	</head>
 
 	<body>
+
 		<div class="board">
 		
 			<table>
 				<tr class="row1">
-					<td class="c11"></td>
-					<td class="c12 center-col"></td>
-					<td class="c13"></td>
+					<td id="c11"></td>
+					<td id="c12" class="center-col"></td>
+					<td id="c13"></td>
 				</tr>
 				<tr class="row2">
-					<td class="c21 center-row"></td>
-					<td class="c22 center-row center-col"></td>
-					<td class="c23 center-row"></td>
+					<td id="c21" class="center-row"></td>
+					<td id="c22" class="center-row center-col"></td>
+					<td id="c23" class="center-row"></td>
 				</tr>
 				<tr class="row3">
-					<td class="c31"></td>
-					<td class="c32 center-col"></td>
-					<td class="c33"></td>
+					<td id="c31"></td>
+					<td id="c32" class="center-col"></td>
+					<td id="c33"></td>
 				</tr>
 			</table>
 
 		</div> <!-- board -->
 		
+
+		<div class="initial">
+			<div class="initial-title">
+				<h2>TicTacToe for <span class="monospace">freeCodeCamp</span></h2>
+			</div>
+			<div class="form-div">
+				<form>
+					<h4>Do you prefer to play as X or O?</h4>
+					<input class="btn btn-x xo-choice" type="button" name="xo" value="X" checked />
+					<input class="btn btn-o xo-choice" type="button" name="xo" value="O" />
+					<h4>Would you like to move first?</h4>
+					<input class="btn btn-human first-move" type="button" name="plays-first" value="I play first" />
+					<br />
+					<input class="btn btn-computer first-move" type="button" name="plays-first" value="Computer plays first" />
+					<br />
+					<br />
+					<br />
+					<input class="btn start-game" type="button" value="Start the game!" />
+				</form>
+			</div>
+		</div> <!-- initial -->
 
 		<!-- jQuery from CDN.  (jQuery is required for Bootstrap.) -->
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
