@@ -7,16 +7,37 @@ $(document).ready(function() {
 	var humanXO = "X";
 	var computerXO = "O";
 	var board = {
-		c11: "",
-		c12: "",
-		c13: "",
-		c21: "",
-		c22: "",
-		c23: "",
-		c31: "",
-		c32: "",
-		c33: "",
+		c11: "", c12: "", c13: "",
+		c21: "", c22: "", c23: "",
+		c31: "", c32: "", c33: "",
 	}
+
+	transitionInitialIn();
+
+	/* Initialization and completion */
+
+	function initialize() {
+		boardActive = false;
+		moveCount = 1;
+		thisMove = firstMove;
+		clearBoard();
+	}
+
+	function clearBoard() {
+		for (key in board) {
+			board[key] = "";
+		}
+		drawBoard();
+	}
+
+	function gameOver() {
+		alert("Game over");
+		setTimeout(initialize(), 5000);
+		transitionInitialIn();
+	}
+
+	/* Game logic */
+
 	var winners = [
 		["c11","c12","c13"],
 		["c21","c22","c23"],
@@ -36,21 +57,6 @@ $(document).ready(function() {
 	var corners = ["c11", "c13", "c31", "c33"];
 	var sides = ["c12", "c21", "c23", "c32"];
 
-	transitionInitialIn();
-
-	function gameOver() {
-		alert("Game over");
-		setTimeout(initialize(), 5000);
-		transitionInitialIn();
-	}
-
-	function initialize() {
-		boardActive = false;
-		moveCount = 1;
-		thisMove = firstMove;
-		clearBoard();
-	}
-
 	function winner() {
 		for (var i = 0; i < winners.length; i++) {
 			if (board[winners[i][0]] === "") {
@@ -62,6 +68,19 @@ $(document).ready(function() {
 			}
 		};
 		return false;
+	}
+
+	function winningMoves(ox) {
+		var open = allOpenCells();
+		var wins = [];
+		for (var i = 0; i < open.length; i++) {
+			board[open[i]] = ox;
+			if (winner()) {
+				wins.push(open[i]);
+			}
+			board[open[i]] = "";
+		};
+		return wins;
 	}
 
 	function blockOpposingCorners(ox) {
@@ -133,19 +152,6 @@ $(document).ready(function() {
 		return "";
 	}
 
-	function winningMoves(ox) {
-		var open = allOpenCells();
-		var wins = [];
-		for (var i = 0; i < open.length; i++) {
-			board[open[i]] = ox;
-			if (winner()) {
-				wins.push(open[i]);
-			}
-			board[open[i]] = "";
-		};
-		return wins;
-	}
-
 	function allOpenCells() {
 		var empty = [];
 		var arr = Object.keys(board);
@@ -208,8 +214,8 @@ $(document).ready(function() {
 			markCell(randomOpenCell(wins));
 			return;
 		}
-		/* Move 4 has a number of special cases */
-		if (moveCount === 4) {
+		/* Moves 4 and 5 can give the game away in some cases */
+		if (moveCount === 4 || moveCount === 5) {
 			cid = blockOpposingCorners();
 			if (cid.length > 0) {
 				markCell(cid);
@@ -225,18 +231,13 @@ $(document).ready(function() {
 				markCell(cid);
 				return;
 			}
-			cid = randomOpenCell();
-			markCell(cid);
-			return;
 		}
-		/* At this point any cell will do */
+		/* At this point any open cell will do */
 		markCell(randomOpenCell());
 		return;
 	}
 
-	function randomPick(arr) {
-		return arr[Math.floor(Math.random() * arr.length)];
-	}
+	/* View modifiers */
 
 	function markCell(cell) {
 		var mark = '';
@@ -267,6 +268,28 @@ $(document).ready(function() {
 			makeMove();
 		} 
 	}
+
+	function drawBoard() {
+		for (key in board) {
+			var keyId = '#' + key;
+			$(keyId).html("");
+			$(keyId).html(board[key]);
+		}
+	}
+	
+	function transitionInitialIn() {
+		$('.initial').animate({
+			top: "+=600",
+		}, 1000);
+	}
+
+	function transitionInitialOut() {
+		$('.initial').animate({
+			top: "-=600",
+		}, 1000);
+	}
+
+	/* Event handling */
 
 	$('td').click(function(event) {
 		if (!boardActive || (thisMove === "computer")) {
@@ -339,31 +362,11 @@ $(document).ready(function() {
 		}
 	});
 
-	function transitionInitialIn() {
-		$('.initial').animate({
-			top: "+=600",
-		}, 1000);
+	/* Uility functions */
+
+	function randomPick(arr) {
+		return arr[Math.floor(Math.random() * arr.length)];
 	}
 
-	function transitionInitialOut() {
-		$('.initial').animate({
-			top: "-=600",
-		}, 1000);
-	}
-
-	function clearBoard() {
-		for (key in board) {
-			board[key] = "";
-		}
-		drawBoard();
-	}
-
-	function drawBoard() {
-		for (key in board) {
-			var keyId = '#' + key;
-			$(keyId).html("");
-			$(keyId).html(board[key]);
-		}
-	}
 
 }); 
