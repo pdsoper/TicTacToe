@@ -1,6 +1,6 @@
 $(document).ready(function() {
     
-    var boardActive = false;
+	var boardActive = false;
 	var moveCount = 1;
 	var firstMove = "human";
 	var thisMove = "human";
@@ -11,9 +11,54 @@ $(document).ready(function() {
 		c21: "", c22: "", c23: "",
 		c31: "", c32: "", c33: "",
 	}
+	var winners = [
+		["c11","c12","c13"],
+		["c21","c22","c23"],
+		["c31","c32","c33"],
+		["c11","c21","c31"],
+		["c12","c22","c32"],
+		["c13","c23","c33"],
+		["c11","c22","c33"],
+		["c13","c22","c31"]
+	];
+	var winnerTransforms = [
+		[["c11","c12","c13"], { width: 640, X:    0, Y: -530, rotate:   0, } ],
+		[["c21","c22","c23"], { width: 640, X:    0, Y: -325, rotate:   0, } ],
+		[["c31","c32","c33"], { width: 640, X:    0, Y: -120, rotate:   0, } ],
+		[["c11","c21","c31"], { width: 640, X: -200, Y: -320, rotate:  90, } ],
+		[["c12","c22","c32"], { width: 640, X:    0, Y: -320, rotate:  90, } ],
+		[["c13","c23","c33"], { width: 640, X:  200, Y: -320, rotate:  90, } ],
+		[["c11","c22","c33"], { width: 900, X:    0, Y: -322, rotate:  45, } ],
+		[["c13","c22","c31"], { width: 900, X:    0, Y: -322, rotate: -45, } ]
+	];
+	var thirdMoveForcing = {
+		c12: ["c31", "c33"],
+		c21: ["c13", "c33"],
+		c23: ["c11", "c31"],
+		c32: ["c11", "c13"]
+	};
+	var corners = ["c11", "c13", "c31", "c33"];
+	var sides = ["c12", "c21", "c23", "c32"];
 
-	transitionInitialIn();
 
+	// transitionInitialIn();
+	applyTransform();
+//	applyTransform(winnerTransforms[0][1]);
+//	applyTransform(winnerTransforms[1][1]);
+//	applyTransform(winnerTransforms[2][1]);
+//	applyTransform(winnerTransforms[3][1]);
+//	applyTransform(winnerTransforms[4][1]);
+//	applyTransform(winnerTransforms[5][1]);
+//	applyTransform(winnerTransforms[6][1]);
+	applyTransform(winnerTransforms[7][1]);
+
+	function testLines() {
+		for (var i = 0; i < winnerTransforms.length; i++) {
+			setTimeout(applyTransform(winnerTransforms[i][1]), 5000);
+		};
+	}
+
+    
 	/* Initialization and completion */
 
 	function initialize() {
@@ -32,30 +77,42 @@ $(document).ready(function() {
 
 	function gameOver() {
 		alert("Game over");
+		if (winner()) {
+	     	var lineCells = winningCells();
+   		 	var tf = getTransform(lineCells);
+   	 		applyTransform(tf);
+   	 		// flashLine();
+   	 		tf = getTransform();
+   	 		applyTransform(tf);
+   	 	}
 		setTimeout(initialize(), 5000);
 		transitionInitialIn();
 	}
 
-	/* Game logic */
+	function getTransform(cells) {
+		if (cells !== undefined) {
+			for (var i = 0; i < winnerTransforms.length; i++) {
+				if (cells == winnerTransforms[i][0]) {
+					return winnerTransforms[i][1];
+				}
+			};
+		}
+		return { width: 0, X: 0, Y: 0, rotate: 0, };
+	}
 
-	var winners = [
-		["c11","c12","c13"],
-		["c21","c22","c23"],
-		["c31","c32","c33"],
-		["c11","c21","c31"],
-		["c12","c22","c32"],
-		["c13","c23","c33"],
-		["c11","c22","c33"],
-		["c13","c22","c31"]
-	];
-	var thirdMoveForcing = {
-		c12: ["c31", "c33"],
-		c21: ["c13", "c33"],
-		c23: ["c11", "c31"],
-		c32: ["c11", "c13"]
-	};
-	var corners = ["c11", "c13", "c31", "c33"];
-	var sides = ["c12", "c21", "c23", "c32"];
+	function applyTransform(tf) {
+		if (tf === undefined) {
+			tf = { width: 0, X: 0, Y: 0, rotate: 0, };
+		}
+		console.log(tf);
+		$( '#win-line' ).css("width", tf.width + 'px');
+		$( '#win-line' ).css("-webkit-transform", 
+			    "translateX(" + tf.X + "px) " +		
+			    "translateY(" + tf.Y + "px) " +
+			    "rotate(" + tf.rotate + "deg)");
+	}
+
+	/* Game logic */
 
 	function winner() {
 		for (var i = 0; i < winners.length; i++) {
@@ -367,6 +424,17 @@ $(document).ready(function() {
 	function randomPick(arr) {
 		return arr[Math.floor(Math.random() * arr.length)];
 	}
+
+
+	function flash($element, times) {
+	    for(var i = 0; i <= times; i ++) {
+	      $element
+	        .fadeOut( 100 )
+	        .delay( 200 )
+	        .fadeIn( 100 );
+    	}
+  	}
+
 
 
 }); 

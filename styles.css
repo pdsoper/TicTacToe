@@ -1,5 +1,39 @@
 /* styles.css for TicTacToe */
 
+.win-line {
+/*  position: absolute; */
+  height: 0px;
+  width: 640px;
+  margin: auto;
+  border-bottom: 5px dashed orange;
+  -webkit-transform:
+    translateY(-322px)
+    translateX(0px)
+    rotate(45deg); 
+}
+
+/* 
+horizontal rotate = 0, X = 0
+bottom row: Y -120
+middle row Y -325
+top row Y -530 (more or less)
+width 640px
+margin: auto;
+
+vertical rotate = 90deg, Y = -320px
+right column X 200
+center column X 0
+left column X -200
+width 640px
+
+diagonal upper left to lower right rotate = 45deg
+Y -322, X 0
+width 900px
+diagonal lower left to upper right rotate = -45deg
+Y -322, X 0
+width 900px;
+*/
+
 .body {
 	font-family: Helvetica, Arial, sans-serif;
 }
