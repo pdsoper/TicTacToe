@@ -28,8 +28,8 @@ $(document).ready(function() {
 		[["c11","c21","c31"], { width: 640, X: -200, Y: -320, rotate:  90, } ],
 		[["c12","c22","c32"], { width: 640, X:    0, Y: -320, rotate:  90, } ],
 		[["c13","c23","c33"], { width: 640, X:  200, Y: -320, rotate:  90, } ],
-		[["c11","c22","c33"], { width: 900, X:    0, Y: -322, rotate:  45, } ],
-		[["c13","c22","c31"], { width: 900, X:    0, Y: -322, rotate: -45, } ]
+		[["c11","c22","c33"], { width: 640, X:    0, Y: -322, rotate:  45, } ],
+		[["c13","c22","c31"], { width: 640, X:    0, Y: -322, rotate: -45, } ]
 	];
 	var thirdMoveForcing = {
 		c12: ["c31", "c33"],
@@ -40,25 +40,9 @@ $(document).ready(function() {
 	var corners = ["c11", "c13", "c31", "c33"];
 	var sides = ["c12", "c21", "c23", "c32"];
 
+	transitionInitialIn();
+	// testLines(3000);
 
-	// transitionInitialIn();
-	applyTransform();
-//	applyTransform(winnerTransforms[0][1]);
-//	applyTransform(winnerTransforms[1][1]);
-//	applyTransform(winnerTransforms[2][1]);
-//	applyTransform(winnerTransforms[3][1]);
-//	applyTransform(winnerTransforms[4][1]);
-//	applyTransform(winnerTransforms[5][1]);
-//	applyTransform(winnerTransforms[6][1]);
-	applyTransform(winnerTransforms[7][1]);
-
-	function testLines() {
-		for (var i = 0; i < winnerTransforms.length; i++) {
-			setTimeout(applyTransform(winnerTransforms[i][1]), 5000);
-		};
-	}
-
-    
 	/* Initialization and completion */
 
 	function initialize() {
@@ -76,15 +60,18 @@ $(document).ready(function() {
 	}
 
 	function gameOver() {
-		alert("Game over");
 		if (winner()) {
 	     	var lineCells = winningCells();
    		 	var tf = getTransform(lineCells);
    	 		applyTransform(tf);
-   	 		// flashLine();
-   	 		tf = getTransform();
-   	 		applyTransform(tf);
+   	 		flash($('#win-line'), 3);
+			alert("Game over - " + thisMove + " wins!");
+   	 		// tf = getTransform();
+   	 		//applyTransform(tf);
+   	 	} else {
+			alert("Game over - tie");
    	 	}
+
 		setTimeout(initialize(), 5000);
 		transitionInitialIn();
 	}
@@ -92,7 +79,7 @@ $(document).ready(function() {
 	function getTransform(cells) {
 		if (cells !== undefined) {
 			for (var i = 0; i < winnerTransforms.length; i++) {
-				if (cells == winnerTransforms[i][0]) {
+				if (arrayEqual(cells, winnerTransforms[i][0])) {
 					return winnerTransforms[i][1];
 				}
 			};
@@ -104,7 +91,6 @@ $(document).ready(function() {
 		if (tf === undefined) {
 			tf = { width: 0, X: 0, Y: 0, rotate: 0, };
 		}
-		console.log(tf);
 		$( '#win-line' ).css("width", tf.width + 'px');
 		$( '#win-line' ).css("-webkit-transform", 
 			    "translateX(" + tf.X + "px) " +		
@@ -125,6 +111,19 @@ $(document).ready(function() {
 			}
 		};
 		return false;
+	}
+
+	function winningCells() {
+		for (var i = 0; i < winners.length; i++) {
+			if (board[winners[i][0]] === "") {
+				continue;
+			}
+			if (board[winners[i][0]] === board[winners[i][1]]
+			 && board[winners[i][0]] === board[winners[i][2]]) {
+			 	return winners[i];
+			}
+		};
+		return [];
 	}
 
 	function winningMoves(ox) {
@@ -305,7 +304,6 @@ $(document).ready(function() {
 		}
 		board[cell] = mark;
 		drawBoard();
-		console.log("Marking cell", cell, " with ", mark, " on move ", moveCount);
 		if (winner()) {
 			gameOver();
 			return;
@@ -419,22 +417,93 @@ $(document).ready(function() {
 		}
 	});
 
-	/* Uility functions */
+	/* Utility functions */
 
 	function randomPick(arr) {
 		return arr[Math.floor(Math.random() * arr.length)];
 	}
 
-
 	function flash($element, times) {
+		$element.fadeIn( 100 );
 	    for(var i = 0; i <= times; i ++) {
 	      $element
 	        .fadeOut( 100 )
 	        .delay( 200 )
 	        .fadeIn( 100 );
     	}
+    	$element.fadeOut( 100 );
   	}
 
+	function testLines() {
+		/* The nested functions are required in order to keep i in scope. */
+		for (var i = 0; i < winnerTransforms.length; i++) {
+			setTimeout(function(x) { 
+				return function() {
+					console.log(x);
+					applyTransform(winnerTransforms[x][1]); 
+					flash($('#win-line'), 3);
+				}; 
+			}(i), 3000 * i); 
+		};
+	}
 
+	function deepEqual(arr1, arr2) {
+		if (arr1 === null && arr2 === null) {
+			return true;
+		}
+		if (arr1 === null || arr2 === null) {
+			return false;
+		}
+		if (typeof arr1 !== typeof arr2) {
+			return false;
+		}
+		if (typeof arr1 === "object") {
+			if (Array.isArray(arr1)) {
+				if (Array.isArray(arr2)) {
+					return arrayEqual(arr1, arr2);	
+				} else {
+					return false;
+				}
+			} else {
+				return objectEqual(arr1, arr2);
+			}
+		} else {
+			return arr1 === arr2;
+		}
+	}
+
+	function arrayEqual(arr1, arr2) {
+		if (arr1.length !== arr2.length) {
+			return false;
+		}
+		if (arr1.length === 0) {
+			return true;
+		}
+		return deepEqual(arr1[0], arr2[0]) 
+			&& arrayEqual(arr1.slice(1), arr2.slice(1));				
+	}
+
+	function objectEqual(obj1, obj2) {
+		if (obj1 === null && obj2 === null) {
+			return true;
+		}
+		if (obj1 === null || obj2 === null) {
+			return false;
+		}
+		var k1 = Object.keys(obj1);
+		var k2 = Object.keys(obj2);
+		if (k1.length !== k2.length) {
+			return false;
+		}
+		for (var i = 0; i < k1.length; i++) {
+			if (k2.indexOf(k1[i]) === -1 ) {
+				return false;
+			}
+			if (!deepEqual(obj1[k1[i]], obj2[k1[i]])) {
+				return false;
+			}
+		};
+		return true;
+	}
 
 }); 

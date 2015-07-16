@@ -1,15 +1,15 @@
 /* styles.css for TicTacToe */
 
 .win-line {
-/*  position: absolute; */
-  height: 0px;
-  width: 640px;
-  margin: auto;
-  border-bottom: 5px dashed orange;
-  -webkit-transform:
-    translateY(-322px)
-    translateX(0px)
-    rotate(45deg); 
+	position: relative; 
+  	height: 0px;
+  	width: 0px;
+  	margin: auto;
+  	border-bottom: 5px dashed orange;
+  	-webkit-transform:
+    	translateY(0px)
+    	translateX(0px)
+    	rotate(0deg); 
 }
 
 /* 
