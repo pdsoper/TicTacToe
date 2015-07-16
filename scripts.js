@@ -46,17 +46,11 @@ $(document).ready(function() {
 	/* Initialization and completion */
 
 	function initialize() {
-		boardActive = false;
 		moveCount = 1;
 		thisMove = firstMove;
 		clearBoard();
-	}
-
-	function clearBoard() {
-		for (key in board) {
-			board[key] = "";
-		}
 		drawBoard();
+		boardActive = true;
 	}
 
 	function gameOver() {
@@ -64,43 +58,23 @@ $(document).ready(function() {
 	     	var lineCells = winningCells();
    		 	var tf = getTransform(lineCells);
    	 		applyTransform(tf);
-   	 		flash($('#win-line'), 3);
-			alert("Game over - " + thisMove + " wins!");
-   	 		// tf = getTransform();
-   	 		//applyTransform(tf);
+   	 		// flash($('#win-line'), 3);
+   	 		alert("Game over - " + thisMove + " wins!"); 
+   	 		tf = getTransform();
+   	 		applyTransform(tf);
    	 	} else {
 			alert("Game over - tie");
    	 	}
-
-		setTimeout(initialize(), 5000);
-		transitionInitialIn();
-	}
-
-	function getTransform(cells) {
-		if (cells !== undefined) {
-			for (var i = 0; i < winnerTransforms.length; i++) {
-				if (arrayEqual(cells, winnerTransforms[i][0])) {
-					return winnerTransforms[i][1];
-				}
-			};
-		}
-		return { width: 0, X: 0, Y: 0, rotate: 0, };
-	}
-
-	function applyTransform(tf) {
-		if (tf === undefined) {
-			tf = { width: 0, X: 0, Y: 0, rotate: 0, };
-		}
-		$( '#win-line' ).css("width", tf.width + 'px');
-		$( '#win-line' ).css("-webkit-transform", 
-			    "translateX(" + tf.X + "px) " +		
-			    "translateY(" + tf.Y + "px) " +
-			    "rotate(" + tf.rotate + "deg)");
+   	 	initialize();
+   	 	if (thisMove === "computer") {
+   	 		makeMove();
+   	 	}
 	}
 
 	/* Game logic */
 
 	function winner() {
+		// Return true if the board contains a winning combibation
 		for (var i = 0; i < winners.length; i++) {
 			if (board[winners[i][0]] === "") {
 				continue;
@@ -114,6 +88,7 @@ $(document).ready(function() {
 	}
 
 	function winningCells() {
+		// Return the winning combination of cells, if any
 		for (var i = 0; i < winners.length; i++) {
 			if (board[winners[i][0]] === "") {
 				continue;
@@ -127,6 +102,7 @@ $(document).ready(function() {
 	}
 
 	function winningMoves(ox) {
+		// Return a list of all winning moves for the mark ox (X or O)
 		var open = allOpenCells();
 		var wins = [];
 		for (var i = 0; i < open.length; i++) {
@@ -140,6 +116,7 @@ $(document).ready(function() {
 	}
 
 	function blockOpposingCorners(ox) {
+		// If the opponent occuies opposing corners, take a side cell
 		if ((board.c11 === ox && board.c33 === ox)
 	     || (board.c13 === ox && board.c31 === ox)) {
 			return randomOpenCell(sides);
@@ -148,6 +125,7 @@ $(document).ready(function() {
 	}
 
 	function blockAdjacentSides(ox) {
+		// If the opponent occupies two adjacent side cells, take the corner cell between them.
 		if (board.c12 === ox && board.c21 === ox) {
 			return "c11";
 		}
@@ -164,6 +142,7 @@ $(document).ready(function() {
 	}
 
 	function blockCornerAndOppposingSide(ox) {
+		// If the opponent occupies a corner and opposite side, take the included corner 
 		if (board.c11 === ox) {
 			if (board.c23 === ox) {
 				return "c13"
@@ -200,6 +179,7 @@ $(document).ready(function() {
 	}
 
 	function onSide(ox) {
+		// If mark ox (X or O) occupies a side cell, return that cell
 		for (var i = 0; i < sides.length; i++) {
 			if (board[sides[i]] === ox) {
 				return sides[i];
@@ -239,7 +219,7 @@ $(document).ready(function() {
 			markCell("c22");
 			return;
 		}
-		// If the human takes the center cell, take a corner
+		// If the human takes the center cell, take any corner
 		if (moveCount === 2) {
 			cid = randomOpenCell(corners);
 			markCell(cid);
@@ -272,17 +252,17 @@ $(document).ready(function() {
 		}
 		/* Moves 4 and 5 can give the game away in some cases */
 		if (moveCount === 4 || moveCount === 5) {
-			cid = blockOpposingCorners();
+			cid = blockOpposingCorners(humanXO);
 			if (cid.length > 0) {
 				markCell(cid);
 				return;
 			}
-			cid = blockAdjacentSides();
+			cid = blockAdjacentSides(humanXO);
 			if (cid.length > 0) {
 				markCell(cid);
 				return
 			}
-			cid = blockCornerAndOppposingSide();
+			cid = blockCornerAndOppposingSide(humanXO);
 			if (cid.length > 0) {
 				markCell(cid);
 				return;
@@ -293,7 +273,7 @@ $(document).ready(function() {
 		return;
 	}
 
-	/* View modifiers */
+	/* Model and View modifiers */
 
 	function markCell(cell) {
 		var mark = '';
@@ -324,6 +304,12 @@ $(document).ready(function() {
 		} 
 	}
 
+	function clearBoard() {
+		for (key in board) {
+			board[key] = "";
+		}
+	}
+
 	function drawBoard() {
 		for (key in board) {
 			var keyId = '#' + key;
@@ -342,6 +328,28 @@ $(document).ready(function() {
 		$('.initial').animate({
 			top: "-=600",
 		}, 1000);
+	}
+
+	function getTransform(cells) {
+		if (cells !== undefined) {
+			for (var i = 0; i < winnerTransforms.length; i++) {
+				if (arrayEqual(cells, winnerTransforms[i][0])) {
+					return winnerTransforms[i][1];
+				}
+			};
+		}
+		return { width: 0, X: 0, Y: 0, rotate: 0, };
+	}
+
+	function applyTransform(tf) {
+		if (tf === undefined) {
+			tf = { width: 0, X: 0, Y: 0, rotate: 0, };
+		}
+		$( '#win-line' ).css("width", tf.width + 'px');
+		$( '#win-line' ).css("-webkit-transform", 
+			    "translateX(" + tf.X + "px) " +		
+			    "translateY(" + tf.Y + "px) " +
+			    "rotate(" + tf.rotate + "deg)");
 	}
 
 	/* Event handling */
